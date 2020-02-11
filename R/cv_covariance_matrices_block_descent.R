@@ -126,7 +126,7 @@ cv_covariance_matrices_block_descent <- function(K,
       sigma_global_corrupted <- HM_proj(sigmaHat = cov_modified,R = ratio_matrix,mu=mu, tolerance = etol)
     }
     sigma_global_uncorrupted <- 1/n * t(mat_uncorrupted)%*%mat_uncorrupted
-    
+    print("entering for loop over the K folds")
     for (i in 1:K){
       # We calculate the necessary matrices for the cross validation
       
@@ -145,6 +145,8 @@ cv_covariance_matrices_block_descent <- function(K,
       }
       list_PSD_lasso <- rlist::list.append(list_PSD_lasso,mat_cov_train)
       
+      # print("calculated the nearest PDS matrix when we remove the kth fold")
+      
       #Calculating the nearest PSD cov matrix for the kth fold, to calculate the error on the problem solved without the kth fold
       mat_test <- mat[index,start:p]
       # cov_modified_test <- 1/n_one_fold*t(test_mat)%*%test_mat / mat_for_adjustment
@@ -156,6 +158,8 @@ cv_covariance_matrices_block_descent <- function(K,
         mat_cov_test <- HM_proj(sigmaHat = cov_modified_test,R=ratio_matrix,mu=mu, tolerance = etol)
       }
       list_PSD_error <- rlist::list.append(list_PSD_error,mat_cov_test)
+      
+      # print("calculated the nearest PDS matrix for the kth fold")
       
       #Calculating the cov matrix when we remove the kth fold, to resolve lasso problem during cross validation
       mat_train <- mat[-index,1:p1]
@@ -170,7 +174,7 @@ cv_covariance_matrices_block_descent <- function(K,
     }
   }
   
-  
+  # print("DONE cv_covariance_matrices_block_descent")
   return(list(sigma_global_corrupted = sigma_global_corrupted, sigma_global_uncorrupted = sigma_global_uncorrupted, 
               list_PSD_lasso = list_PSD_lasso, list_PSD_error = list_PSD_error, 
               list_sigma_lasso=list_sigma_lasso, list_sigma_error=list_sigma_error, folds = folds))

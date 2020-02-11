@@ -335,6 +335,8 @@ blockwise_coordinate_descent <- function(Z,
     lambda_step <- lambda_list[i]
     error_old <- error
     
+    print(paste("Lambda index:", i))
+    
     out = sapply(1:K, function(k)cross_validation_function.block_descent(k,
                                                                          Z,
                                                                          y,
@@ -365,6 +367,8 @@ blockwise_coordinate_descent <- function(Z,
     out = lasso_covariance_block(n=n, p1=p1, p2=p2, X1=X1, Z2=Z2, y=y, sigma1=sigma1, sigma2=sigma2, lambda=lambda_step, 
                                  noise=noise, ratio_matrix = ratio_matrix, beta1.start = beta1.start, beta2.start = beta2.start,
                                  penalty=penalty)
+    
+    # print(paste("Step",step,"done cv_covariance_matrices_block_descent. now starting "))
     beta1 <- out$coefficients.beta1
     beta2 <- out$coefficients.beta2
     beta <- c(beta1,beta2)

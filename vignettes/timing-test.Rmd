@@ -1,0 +1,128 @@
+---
+title: "Introduction-to-BDcocolasso"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction-to-BDcocolasso}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Quick Start
+
+We will use the simulated data which are provided in the package and can be loaded via:
+
+
+```{r}
+# library(BDcocolasso)
+devtools::load_all()
+# library(bench)
+pacman::p_load(proftools)
+data("simulated_data_missing")
+data("simulated_data_additive")
+data("simulated_data_missing_block")
+data("simulated_data_additive_block")
+```
+
+
+## CoCoLasso 
+
+
+
+
+
+
+## Block-Descent CoCoLasso algorithm with n=100, p=200
+
+We can fit the BDCoCoLasso model for both datasets using \code{block=TRUE}:
+
+```{r fit1, results='asis'}
+p1 <- 180
+p2 <- 20
+y_missing <- simulated_data_missing_block[1:100,1]
+Z_missing = simulated_data_missing_block[1:100,2:dim(simulated_data_missing_block)[2]]
+Z_missing = as.matrix(Z_missing)
+dim(Z_missing)
+n_missing <- dim(Z_missing)[1]
+p_missing <- dim(Z_missing)[2]
+y_missing = as.matrix(y_missing)
+
+# system.time({
+# fit_missing = profr(coco(Z=Z_missing,y=y_missing,n=n_missing,p=p_missing,p1=p1,p2=p2,step=50,K=5,mu=10,tau=NULL,noise="missing",block=TRUE, penalty="lasso", mode = "HM"))
+# }
+# )
+# set.seed(1234)
+profout <- tempfile()
+Rprof(file = profout, gc.profiling = TRUE, line.profiling = TRUE)
+fit_missing = coco(Z=Z_missing,y=y_missing,n=n_missing,p=p_missing,p1=p1,p2=p2,
+                   step=100,K=5,mu=10,tau=NULL,noise="missing",
+                   block=TRUE, penalty="SCAD")
+Rprof(NULL)
+pd <- readProfileData(profout)
+unlink(profout)
+head(funSummary(pd, srclines = FALSE), 15)
+plotCoef(fit_missing)
+# pacman::p_load(BiocManager)
+# pacman::p_load(graph)
+# pacman::p_load(Rgraphviz)
+# plotProfileCallGraph(pd)
+# plotProfileCallGraph(filterProfileData(pd, focus = "lasso_covariance"))
+# 
+# fg <- flameGraph(pd)
+# identify(fg)
+# calleeTreeMap(pd)
+# 
+# BDcocolasso::coco()
+# coco_c <- compiler::cmpfun(BDcocolasso::coco)
+# coco
+# 
+# pacman::p_load(microbenchmark)
+# 
+# pt <- microbenchmark::microbenchmark(
+#   fit_missing = coco(Z=Z_missing,y=y_missing,n=n_missing,p=p_missing,p1=p1,p2=p2,step=50,K=4,mu=10,tau=NULL,noise="missing",block=FALSE, penalty="lasso"),
+#   fit_missing_cmp = coco_c(Z=Z_missing,y=y_missing,n=n_missing,p=p_missing,p1=p1,p2=p2,step=50,K=4,mu=10,tau=NULL,noise="missing",block=FALSE, penalty="lasso"),
+#   times = 5
+# )
+# 
+# ggplot2::autoplot(pt)
+
+```
+
+
+```{r}
+knitr::knit_exit()
+```
+
+
+
+
+## Block-Descent CoCoLasso algorithm with n=10000, p=200
+
+We can fit the BDCoCoLasso model for both datasets using \code{block=TRUE}:
+```{r fit2}
+p1 <- 180
+p2 <- 20
+y_missing <- simulated_data_missing_block[,1]
+Z_missing = simulated_data_missing_block[,2:dim(simulated_data_missing_block)[2]]
+Z_missing = as.matrix(Z_missing)
+dim(Z_missing)
+n_missing <- dim(Z_missing)[1]
+p_missing <- dim(Z_missing)[2]
+y_missing = as.matrix(y_missing)
+
+# system.time({
+fit_missing = coco(Z=Z_missing,y=y_missing,n=n_missing,p=p_missing,p1=p1,p2=p2,step=100,K=4,mu=10,tau=NULL,noise="missing",block=TRUE, penalty="lasso")
+# }
+# )
+
+
+
+```
